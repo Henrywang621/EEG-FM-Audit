@@ -1,9 +1,9 @@
 # A Code Repository for EEG-FM-Audit: A Systematic Evaluation and Analysis Pipeline for EEG Foundation Models
 
 
-### Public Datasets Used
+### 🗄️ Public Datasets Used
 
-We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV Dataset][3].
+We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV Dataset][3] in our experiments.
 
 ---
 
@@ -14,9 +14,7 @@ We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV 
 
 
 
-
-
-## Evaluated four SOTA Foundation Models (FMs) and their source code
+## 🧠 Evaluated four SOTA Foundation Models (FMs) and their source code
 
 | methods | title | author |  year | source code |  
 | ------ | ------ | ------ | ------ | ------ |
@@ -26,3 +24,11 @@ We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV 
 | NeuroLM | NeuroLM: A Universal Multi-task Foundation Model for Bridging the Gap between Language and EEG Signals. [[Paper link (published in ICLR 2025)]](https://openreview.net/forum?id=lvS2b8CjG5) | Jiang et al. | 2025 | [Code](https://github.com/935963004/NeuroLM) |  
 
 
+### 🖥️ Hardware Specifications
+
+Our experiments were conducted across two high-performance servers to ensure computational consistency:
+
+| Server | Configuration | Memory per Unit |
+| :--- | :--- | :--- |
+| **Server A** | 4 × NVIDIA A100 | 80 GB |
+| **Server B** | 8 × NVIDIA A5000 | 24 GB |
