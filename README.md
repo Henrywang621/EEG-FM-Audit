@@ -16,7 +16,7 @@ We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV 
 
 ## 🧠 Evaluated four SOTA Foundation Models (FMs) and their source code
 
-| methods | title | author |  year | source code |  
+| methods | title | author |  year | code |  
 | ------ | ------ | ------ | ------ | ------ |
 | NeuroGPT | Neuro-GPT: Towards A Foundation Model for EEG. [[Paper link (published in ISBI 2024)]](https://ieeexplore.ieee.org/document/10635453) | Cui et al. | 2024 | [Code](https://github.com/wenhui0206/neurogpt) |  
 | LaBraM | Large Brain Model for Learning Generic Representations with Tremendous EEG Data in BCI. [[Paper link (published in ICLR 2024)]](https://openreview.net/forum?id=QzTpTRVtrP) | Jiang et al. | 2024 | [Code](https://github.com/935963004/LaBraM) |  
