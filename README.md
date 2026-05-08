@@ -17,11 +17,13 @@ TUEV: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/
 
 | methods | title | author |  year | source code |  
 | ------ | ------ | ------ | ------ | ------ |
-
-
 | EEGNet | EEGNet: a compact convolutional neural network for EEG-based brain–computer interfaces. [[Paper]](https://arxiv.org/abs/1611.08024) | Lawhern et al. | 2018 | [Code](https://github.com/vlawhern/arl-eegmodels) |  
 | TS-SEFFNet | A Temporal-Spectral-Based Squeeze-and-Excitation Feature Fusion Network for Motor Imagery EEG Decoding. [[Paper]](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9495768) | Li et al. | 2021 | [Code](https://github.com/LianghuiGuo/TS-SEFFNet) |  
 | CSPnet | CSP-Net: Common spatial pattern empowered neural networks for EEG-based motor imagery classification. [[Paper]](https://www.sciencedirect.com/science/article/abs/pii/S0950705124013029) | Jiang et al. | 2024 | [Code](https://braindecode.org/1.3/models/models_categorization.html) |  
+| CTNet | CTNet: A Convolutional Transformer Network for EEG-Based Motor Imagery Classification. [[Paper]](https://www.nature.com/articles/s41598-024-71118-7) | Zhao et al. | 2024 | [Code](https://github.com/snailpt/CTNet) |  
+| MSCFormer | Multi-Scale Convolutional Transformer Network for Motor Imagery Brain-Computer Interface. [[Paper]](https://www.nature.com/articles/s41598-025-96611-5) | Zhao et al. | 2025 | [Code](https://github.com/snailpt/MSCFormer) |  
+
+
 
 
 
