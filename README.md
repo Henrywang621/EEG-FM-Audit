@@ -1,14 +1,15 @@
 # A Code Repository for EEG-FM-Audit: A Systematic Evaluation and Analysis Pipeline for EEG Foundation Models
 
 
-<a  id="Datasets"></a>
-Public datasets used 
-===
-```
-* [BCI Competition IV 2b](https://www.bbci.de/competition/iv/)
-* [TUAB Dataset](https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/)
-* [TUEV Dataset](https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/)
-```
+### Public Datasets Used
+
+We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV Dataset][3].
+
+---
+
+[1]: https://www.bbci.de/competition/iv/
+[2]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/
+[3]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/
 
 
 
