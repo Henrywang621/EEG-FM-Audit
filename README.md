@@ -5,25 +5,23 @@
 Public datasets used 
 ===
 ```
-BCI Competition IV 2b: https://www.bbci.de/competition/iv/
-
-TUAB: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/
-
-TUEV: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/
+* [BCI Competition IV 2b](https://www.bbci.de/competition/iv/)
+* [TUAB Dataset](https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/)
+* [TUEV Dataset](https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/)
 ```
 
 
-## Evaluated FMs and their supervised baselines
+
+
+
+
+## Evaluated four SOTA Foundation Models (FMs) and their source code
 
 | methods | title | author |  year | source code |  
 | ------ | ------ | ------ | ------ | ------ |
-| EEGNet | EEGNet: a compact convolutional neural network for EEG-based brain–computer interfaces. [[Paper]](https://arxiv.org/abs/1611.08024) | Lawhern et al. | 2018 | [Code](https://github.com/vlawhern/arl-eegmodels) |  
-| TS-SEFFNet | A Temporal-Spectral-Based Squeeze-and-Excitation Feature Fusion Network for Motor Imagery EEG Decoding. [[Paper]](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9495768) | Li et al. | 2021 | [Code](https://github.com/LianghuiGuo/TS-SEFFNet) |  
-| CSPnet | CSP-Net: Common spatial pattern empowered neural networks for EEG-based motor imagery classification. [[Paper]](https://www.sciencedirect.com/science/article/abs/pii/S0950705124013029) | Jiang et al. | 2024 | [Code](https://braindecode.org/1.3/models/models_categorization.html) |  
-| CTNet | CTNet: A Convolutional Transformer Network for EEG-Based Motor Imagery Classification. [[Paper]](https://www.nature.com/articles/s41598-024-71118-7) | Zhao et al. | 2024 | [Code](https://github.com/snailpt/CTNet) |  
-| MSCFormer | Multi-Scale Convolutional Transformer Network for Motor Imagery Brain-Computer Interface. [[Paper]](https://www.nature.com/articles/s41598-025-96611-5) | Zhao et al. | 2025 | [Code](https://github.com/snailpt/MSCFormer) |  
-
-
-
+| NeuroGPT | Neuro-GPT: Towards A Foundation Model for EEG. [[Paper published in ISBI 2024]](https://ieeexplore.ieee.org/document/10635453) | Cui et al. | 2024 | [Code](https://github.com/wenhui0206/neurogpt) |  
+| LaBraM | Large Brain Model for Learning Generic Representations with Tremendous EEG Data in BCI. [[Paper published in ICLR 2024]](https://openreview.net/forum?id=QzTpTRVtrP) | Jiang et al. | 2024 | [Code](https://github.com/935963004/LaBraM) |  
+| EEGPT | EEGPT: Pretrained Transformer for Universal and Reliable Representation of EEG Signals. [[Paper published in NeurIPS 2024]](https://openreview.net/forum?id=lvS2b8CjG5) | Wang et al. | 2024 | [Code](hhttps://github.com/BINE022/EEGPT) |  
+| NeuroLM | NeuroLM: A Universal Multi-task Foundation Model for Bridging the Gap between Language and EEG Signals. [[Paper published in ICLR 2025]](https://openreview.net/forum?id=lvS2b8CjG5) | Jiang et al. | 2025 | [Code](https://github.com/935963004/NeuroLM) |  
 
 
