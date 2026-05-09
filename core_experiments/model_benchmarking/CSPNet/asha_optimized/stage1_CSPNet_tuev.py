@@ -70,19 +70,16 @@ def train_tune_cspnet(config):
     
     optimizer = optim.Adam(model.parameters(), lr=config["lr"], weight_decay=config["weight_decay"])
     
-    # CSPNet typically uses log_softmax, so NLLLoss is required
     criterion = nn.NLLLoss()
     
     for epoch in range(config["epochs"]):
         model.train()
         for X, y in train_loader:
             X, y = X.to(device), y.to(device)
-            # Add channel dimension if necessary: [Batch, 1, Chans, Time]
             X = X.unsqueeze(1) 
             
             optimizer.zero_grad(set_to_none=True)
             
-            # Squeeze spatial dimensions as done in train2.py for CSPNet
             logits = model(X).squeeze(-1).squeeze(-1)
             loss = criterion(logits, y)
             
@@ -97,14 +94,12 @@ def train_tune_cspnet(config):
                 X = X.unsqueeze(1).to(device)
                 logits = model(X).squeeze(-1).squeeze(-1)
                 
-                # Convert log_softmax to probabilities
                 probs = torch.exp(logits)
                 preds.extend(torch.argmax(probs, 1).cpu().numpy())
                 targets.extend(y.numpy())
         
         bacc = balanced_accuracy_score(targets, preds)
         
-        # Report back to Ray Tune for ASHA scheduling
         tune.report({"balanced_accuracy": bacc}) 
 
 # ==========================================================
@@ -113,7 +108,6 @@ def train_tune_cspnet(config):
 if __name__ == "__main__":
     start_time = time.time()
     
-    # Configuration matches your specific server paths
     TUEV_ROOT = "/homes/xw2336/data_portal/TUEV/resampled_2000"
     RESULT_STORAGE = "/homes/xw2336/data_portal/ASHA/TUEV/ray_results_CSPNet"
     CONFIG_SAVE_PATH = "best_config_cspnet_tuev.json"
@@ -122,7 +116,6 @@ if __name__ == "__main__":
 
     print("Starting CSPNet Hyperparameter Tuning on TUEV (ASHA)...")
     
-    # Hyperparameter space adapted from train2.py
     search_space = {
         "root_path": TUEV_ROOT,
         "lr": tune.loguniform(1e-4, 1e-2),
@@ -139,7 +132,6 @@ if __name__ == "__main__":
         "dropout": tune.choice([0.25, 0.5, 0.75]),
     }
 
-    # ASHA Scheduler setup from train2.py
     asha_scheduler = ASHAScheduler(
         metric="balanced_accuracy",
         mode="max",
@@ -154,7 +146,6 @@ if __name__ == "__main__":
         config=search_space,
         scheduler=asha_scheduler,
         num_samples=50, 
-        # Adjust GPU resource if you are using 'torchrun' with 2 GPUs manually
         resources_per_trial={"cpu": 2, "gpu": 1},
         max_concurrent_trials=2
     )
