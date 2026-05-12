@@ -1,19 +1,6 @@
 # A Code Repository for EEG-FM-Audit: A Systematic Evaluation and Analysis Pipeline for EEG Foundation Models
 
 
-### 🗄️ Public Datasets Used
-
-We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV Dataset][3] in our experiments.
-
----
-
-[1]: https://www.bbci.de/competition/iv/
-[2]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/
-[3]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/
-
-
-
-
 ## 🧠 Evaluated four SOTA Foundation Models (FMs) and their source code
 
 | methods | title | author |  year | code |  
@@ -24,6 +11,20 @@ We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV 
 | NeuroLM | NeuroLM: A Universal Multi-task Foundation Model for Bridging the Gap between Language and EEG Signals. [[Paper link (published in ICLR 2025)]](https://openreview.net/forum?id=lvS2b8CjG5) | Jiang et al. | 2025 | [Code](https://github.com/935963004/NeuroLM) |  
 
 
+### 🧬 Supervised baseline models and their source code
+
+
+| Model | year |code |
+| :--- | :--- | :--- |
+| **EEGNet** | 2018 | [Code](https://github.com/aliasvishnu/EEGNet) |
+| **TS-SEFFNet** | 2021 | [Code](https://github.com/LianghuiGuo/TS-SEFFNet) |
+| **CSPNet** | 2024 | [Code](https://braindecode.org/stable/index.html) |
+| **CTNet** | 2024 | [Code](https://github.com/snailpt/CTNet) |
+| **MSCFormer** | 2025 | [Code](https://github.com/snailpt/MSCFormer) |
+
+
+---
+
 ### 🖥️ Hardware Specifications
 
 Our experiments were conducted across two high-performance servers to ensure computational consistency:
@@ -32,3 +33,18 @@ Our experiments were conducted across two high-performance servers to ensure com
 | :--- | :--- | :--- |
 | **Server A** | 4 × NVIDIA A100 | 80 GB |
 | **Server B** | 8 × NVIDIA A5000 | 24 GB |
+
+---
+
+
+
+### 🗄️ Public Datasets Used
+
+We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV Dataset][3] in our experiments.
+
+---
+
+[1]: https://www.bbci.de/competition/iv/
+[2]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/
+[3]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/
+
