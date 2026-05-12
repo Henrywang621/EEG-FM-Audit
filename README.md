@@ -48,3 +48,18 @@ We utilize the [BCI Competition IV 2b][1], the [TUAB Dataset][2], and the [TUEV 
 [2]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_abnormal/
 [3]: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_events/
 
+
+## 🛠️ Environment Setup
+
+To ensure computational consistency across the high-performance servers (NVIDIA A100 and A5000) described above, please follow these steps to configure your environment.
+
+### 1. Prerequisites
+* **Conda:** Ensure you have [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/) installed.
+* **CUDA:** Ensure your system has NVIDIA drivers compatible with the CUDA version specified in the environment file.
+
+### 2. Installation
+Clone the repository and create the virtual environment using the provided `.yml` file. This file contains all necessary dependencies, including PyTorch and specialized libraries for BCI research.
+
+```bash
+# Create the environment from the environment.yml file under the directory (configs)
+conda env create -f environment.yml
