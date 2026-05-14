@@ -25,25 +25,11 @@ def get_chans(ch_names):
 
 
 class SEEDDataset(Dataset):
-    """读取单个hdf5文件，仅使用范式中途采集的数据，标签内包含范式标签与被试性别，如有需要可以继续往字典中添加"""
+
     def __init__(self, file_path: Path, window_size: int=200, stride_size: int=1, start_percentage: float=0, end_percentage: float=1, 
                  trial_start_percentage: float=0, trial_end_percentage: float=1, subject_start_percentage: float=0, subject_end_percentage: float=1, 
                  is_instruct: bool=False, is_val: bool=False, eeg_max_len=-1, text_max_len=-1):
-        '''
-        从路径file_path中提取数据集。
-
-        :param Path file_path: 目标数据路径
-        :param int window_size: 单个样本长度
-        :param int stride_size: 两个相邻样本间隔
-        :param float start_percentage: 数据集中，每个采纳的trial内首个样本在此trial的样本中的百分比索引（包括）。
-        :param float end_percentage: 数据集中，每个采纳的trial内末尾样本在此trial的样本中的百分比索引（不包括）。
-        :param float trial_start_percentage: 数据集中，采纳的首个trial在此被试的所有trial中的百分比索引（包括）。
-        :param float trial_end_percentage: 数据集中，采纳的末个trial在此被试的所有trial中的百分比索引（不包括）。
-        :param float subject_start_percentage: 数据集中，采纳的首个被试的百分比索引（包括）。
-        :param float subject_end_percentage: 数据集中，采纳的末个被试的百分比索引（不包括）。
         
-        比如，数据文件总共10个被试，每个被试有15个trial，每个trial提供100个样本时。取参数为0.2, 0.8, 0.34, 0.67, 0.2, 0.8时，数据集会包括下标为[2, 8)的被试，每个被试的下标为[5, 10)的trial中，每个trial下标为[20, 80)的样本。
-        '''
         self.__file_path = file_path
         self.__window_size = window_size
         self.__stride_size = stride_size
@@ -63,9 +49,9 @@ class SEEDDataset(Dataset):
         self.__feature_size = None
 
         self.__subjects = []
-        self.__global_idxes = [] # 从第几个样本开始是哪个被试
-        self.__local_idxess = [] # 从这个被试的第几个样本开始是哪个trial
-        self.__trial_start_idxess = [] # trial开始索引
+        self.__global_idxes = [] 
+        self.__local_idxess = [] 
+        self.__trial_start_idxess = []
         self.__genders = []
         self.__labelss = []
 
@@ -95,22 +81,22 @@ class SEEDDataset(Dataset):
         self.__subjects = [i for i in self.__file]
 
         global_idx = 0
-        subject_start_id = int(len(self.__subjects) * self.__subject_start_percentage) # 包括在数据集中的被试开始id
-        subject_end_id = int(len(self.__subjects) * self.__subject_end_percentage - 1) # 包括在数据集中的被试结束id
+        subject_start_id = int(len(self.__subjects) * self.__subject_start_percentage) 
+        subject_end_id = int(len(self.__subjects) * self.__subject_end_percentage - 1) 
         for subject_id, subject in enumerate(self.__subjects):
             self.__global_idxes.append(global_idx)
             #self.__genders.append(self.__file[subject].attrs['gender'])
             self.__labelss.append(self.__file[subject].attrs['label'])
             self.__rsFreq = self.__file[subject]['eeg'].attrs['rsFreq']
 
-            local_idxes = [] # 当前trial的第一个样本在数据集中的样本索引
-            trial_start_idxes = [] # 当前trial在原始数据中的开始位置索引
+            local_idxes = [] 
+            trial_start_idxes = [] 
             trial_starts = self.__file[subject].attrs['trialStart']
             trial_ends = self.__file[subject].attrs['trialEnd']
             local_idx = 0
             if subject_id >= subject_start_id and subject_id <= subject_end_id:
-                trial_start_id = int(len(trial_starts) * self.__trial_start_percentage)  # 该被试包括在数据集中的trial开始id
-                trial_end_id = int(len(trial_starts) * self.__trial_end_percentage - 1)  # 该被试包括在数据集中的trial结束id
+                trial_start_id = int(len(trial_starts) * self.__trial_start_percentage)  
+                trial_end_id = int(len(trial_starts) * self.__trial_end_percentage - 1)  
                 for trial_id, (trial_start, trial_end) in enumerate(zip(trial_starts, trial_ends)):
                     local_idxes.append(local_idx)
 
@@ -147,7 +133,7 @@ class SEEDDataset(Dataset):
         return self.__length
 
     def __getitem__(self, idx: int):
-        # 先确认样本属于哪个被试，再确认样本属于哪个trial
+
         subject_id = bisect.bisect(self.__global_idxes, idx) - 1
         trial_id = bisect.bisect(self.__local_idxess[subject_id], idx-self.__global_idxes[subject_id]) - 1
         item_start_idx = (idx - self.__global_idxes[subject_id] - self.__local_idxess[subject_id][trial_id]) * self.__stride_size + self.__trial_start_idxess[subject_id][trial_id]
@@ -217,7 +203,6 @@ class SEEDDataset(Dataset):
         return X_eeg, text, Y_text, input_chans, input_time, eeg_mask.bool(), gpt_mask.bool()
 
     def free(self) -> None: 
-        # TODO 临时方案，目标：减少文件打开次数。查一下flush
         if self.__file:
             self.__file.close()
             self.__file = None
