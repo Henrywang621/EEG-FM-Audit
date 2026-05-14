@@ -1,0 +1,2 @@
+When pretraining NeuroGPT, we use the same scripts as in the fine-tuning stage under the model_benchmarking/NeuroGPT/src directory, but the command lines used to run the scripts are different.
+Please refer to the NeuroGPT scripts directory.
