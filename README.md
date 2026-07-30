@@ -63,3 +63,16 @@ Clone the repository and create the virtual environment using the provided `.yml
 ```bash
 # Create the environment from the environment.yml file under the directory (configs)
 conda env create -f environment.yml
+```
+
+##  📁 Data Preparation & Preprocessing
+
+
+```text
+data/
+├── TUAB/
+├── TUEV/
+└── BCICIV_2b/
+```
+
+We use the same processing methods to process TUAB and TUEV datasets as [LaBraM](https://openreview.net/forum?id=QzTpTRVtrP). The related data processing scripts can be found [here](https://github.com/935963004/LaBraM) (Click)
