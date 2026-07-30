@@ -75,4 +75,11 @@ data/
 └── BCICIV_2b/
 ```
 
-We use the same processing methods to process TUAB and TUEV datasets as [LaBraM](https://openreview.net/forum?id=QzTpTRVtrP). The related data processing scripts can be found [here](https://github.com/935963004/LaBraM) (Click)
+We use the same processing methods to process TUAB and TUEV datasets as [LaBraM](https://openreview.net/forum?id=QzTpTRVtrP). The related data processing scripts can be found [here](https://github.com/935963004/LaBraM) (Click).
+
+For BCI Competition IV 2b, you can run the script below from your terminal to process this dataset.
+
+```bash
+# Create the environment from the environment.yml file under the directory (configs)
+python Preprocess_BCIIV2b.py --data-dir /path/to/BCICIV_2b_gdf --output-dir ./BCICIV_2b
+```
