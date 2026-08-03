@@ -83,3 +83,5 @@ For BCI Competition IV 2b, you can run the script below from your terminal to pr
 # Create the environment from the environment.yml file under the directory (configs)
 python Preprocess_BCIIV2b.py --data-dir /path/to/BCICIV_2b_gdf --output-dir ./BCICIV_2b
 ```
+
+Please place the downloaded TUAB, TUEV, and BCI Competition IV 2b datasets under data/TUAB, data/TUEV, and data/BCICIV_2b, respectively.
