@@ -126,7 +126,9 @@ CUDA_VISIBLE_DEVICES=1 nohup python -u run_class_finetuning_tuab_tuev.py \
    > debug_run.log 2>&1 & 
 ```
 
-🔄 Testing Other Models and DatasetsTo evaluate the other models across our 4 datasets, simply swap the arguments in the execution template above based on the tables below.
+🔄 Testing Other Datasets
+
+To evaluate the other models across other datasets, simply swap the arguments in the execution template above based on the tables below.
 
 | Target Dataset | Executable Script | `--dataset` Argument |
 | :--- | :--- | :--- |
