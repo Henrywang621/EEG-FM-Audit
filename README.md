@@ -85,3 +85,21 @@ python Preprocess_BCIIV2b.py --data-dir /path/to/BCICIV_2b_gdf --output-dir ./BC
 ```
 
 Please place the downloaded TUAB, TUEV, and BCI Competition IV 2b datasets under data/TUAB, data/TUEV, and data/BCICIV_2b, respectively.
+
+
+
+# ⚙️ ASHA-Driven Baseline Benchmarking
+
+For example, to run the ASHA-driven script evaluating CSPNet on the TUAB dataset:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 nohup python stage1_CSPNet_tuab.py > CSPNet_tuab1.log 2>&1 & disown
+
+CUDA_VISIBLE_DEVICES=0 nohup python stage2_CSPNet_tuab.py > CSPNet_tuab2.log 2>&1 & disown 
+```
+
+Note: Before running the scripts, please update the dataset paths (e.g., TUAB_ROOT) to match your local directory structure. To evaluate different datasets or baseline models (i.e., CTNet, EEGNet, MSCFormer, and TS-SEFFNet), use the corresponding scripts provided in model_benchmarking/baselines_names instead of the scripts above.
+
+
+
+
