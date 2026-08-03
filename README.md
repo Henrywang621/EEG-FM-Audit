@@ -7,7 +7,7 @@
 | ------ | ------ | ------ | ------ | ------ |
 | NeuroGPT | Neuro-GPT: Towards A Foundation Model for EEG. [[Paper link (published in ISBI 2024)]](https://ieeexplore.ieee.org/document/10635453) | Cui et al. | 2024 | [Code](https://github.com/wenhui0206/neurogpt) |  
 | LaBraM | Large Brain Model for Learning Generic Representations with Tremendous EEG Data in BCI. [[Paper link (published in ICLR 2024)]](https://openreview.net/forum?id=QzTpTRVtrP) | Jiang et al. | 2024 | [Code](https://github.com/935963004/LaBraM) |  
-| EEGPT | EEGPT: Pretrained Transformer for Universal and Reliable Representation of EEG Signals. [[Paper link (published in NeurIPS 2025)]](https://openreview.net/forum?id=lvS2b8CjG5) | Wang et al. | 2024 | [Code](https://github.com/BINE022/EEGPT) |  
+| EEGPT | EEGPT: Pretrained Transformer for Universal and Reliable Representation of EEG Signals. [[Paper link (published in NeurIPS 2024)]](https://openreview.net/forum?id=lvS2b8CjG5) | Wang et al. | 2024 | [Code](https://github.com/BINE022/EEGPT) |  
 | NeuroLM | NeuroLM: A Universal Multi-task Foundation Model for Bridging the Gap between Language and EEG Signals. [[Paper link (published in ICLR 2025)]](https://openreview.net/forum?id=lvS2b8CjG5) | Jiang et al. | 2025 | [Code](https://github.com/935963004/NeuroLM) |  
 
 ---
@@ -134,4 +134,37 @@ To evaluate the other models across other datasets, simply swap the arguments in
 | :--- | :--- | :--- |
 | **TUEV** | `run_class_finetuning_tuab_and_tuev.py` | `TUEV` |
 | **BCICIV_2b** | `run_class_finetuning_2b.py` | `BCIIV2b` |
+
+🔄 Testing Other Foundation Models
+
+To evaluate other foundation models, similar commands can be executed. Below is an example for fine-tuning and evaluating **NeuroGPT** on the **TUAB** dataset:
+
+```bash
+CUDA_VISIBLE_DEVICES=2 nohup python -u train_tuab.py \
+   --num_train_epochs 50 \
+   --training-steps 10000 \
+   --log-dir ./log/tuab \
+   --run-name neurogpt_repro \
+   --pretrained-model NeuroGPT/pretrained_model/pytorch_model.bin \
+   > neurogpt_tuab.log 2>&1 &
+```
+
+Below is an example for fine-tuning and evaluating **NeuroLM** on the **TUAB** dataset:
+
+```bash
+export WANDB_MODE=offline && \
+export CUDA_VISIBLE_DEVICES=0,1,2,5,6 && \
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True && \
+torchrun --nnodes=1 --nproc_per_node=4 --master_port=29505 NeuroLM/train_instruction_tuab.py \
+  --dataset_dir "/homes/xw2336/data" \
+  --out_dir "NeuroLM/results_TUAB/default_run" \
+  --NeuroLM_path "NeuroLM/checkpoints/NeuroLM-B.pt" \
+  --gradient_accumulation_steps 1 \
+  > training_tuab.log 2>&1 & disown
+```
+
+
+
+
+
 
