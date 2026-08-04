@@ -144,6 +144,7 @@ To evaluate the other models across other datasets, simply swap the arguments in
 | **TUEV** | `run_class_finetuning_tuab_and_tuev.py` | `TUEV` |
 | **BCICIV_2b** | `run_class_finetuning_2b.py` | `BCIIV2b` |
 ---
+
 <br>
 
 🔄 Testing Other Foundation Models
@@ -184,12 +185,10 @@ torchrun --nnodes=1 --nproc_per_node=4 --master_port=29505 NeuroLM/train_instruc
 
 ### 1. Pretraining-Source Ablation
 
-For example, to conduct this ablation for NeuroGPT on the TUAB dataset:
+For example, to conduct this ablation for NeuroGPT when the TUAB dataset is the target dataset:
 
-```
-CUDA_VISIBLE_DEVICES=0 nohup 
-
-python -u train_tuab.py \
+```bash
+CUDA_VISIBLE_DEVICES=0 nohup python -u train_tuab.py \
   --training-style generative \
   --pretrained-model none \
   --num_train_epochs 100 \
@@ -200,4 +199,12 @@ python -u train_tuab.py \
   --run-name neurogpt_pretrain_tuab \
   > tuab_pretrain.log 2>&1 &
 ```
+ <br>
+
+After pretraining the model exclusively on the target dataset, move the resulting model weights to a designated directory (e.g., pretrained_model/). You can then fine-tune and evaluate the model on the target dataset using the commands detailed in the ⚙️ EEG-FMs Evaluation section. This same methodology can be adapted for other datasets and models.
+
+---
+
+
+
 
