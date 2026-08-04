@@ -90,6 +90,14 @@ Clone the repository and create the virtual environment using the provided `.yml
 conda env create -f environment.yml
 ```
 
+### 3. Environment Activation
+Activate the installed Conda environment before using it.
+
+```bash
+conda activate EEG26pytorch
+```
+
+<br>
 
 # ⚙️ ASHA-Driven Baseline Benchmarking
 
@@ -104,6 +112,7 @@ CUDA_VISIBLE_DEVICES=0 nohup python stage2_CSPNet_tuab.py > CSPNet_tuab2.log 2>&
 Note: Before running the scripts, please update the dataset paths (e.g., TUAB_ROOT) to match your local directory structure. To evaluate different datasets or baseline models (i.e., CTNet, EEGNet, MSCFormer, and TS-SEFFNet), use the corresponding scripts provided in model_benchmarking/baselines_names instead of the scripts above.
 
 ---
+<br>
 
 # ⚙️ EEG-FMs Evaluation
 
@@ -125,7 +134,7 @@ CUDA_VISIBLE_DEVICES=1 nohup python -u run_class_finetuning_tuab_tuev.py \
    --abs_pos_emb  \
    > debug_run.log 2>&1 & 
 ```
-
+<br>
 🔄 Testing Other Datasets
 
 To evaluate the other models across other datasets, simply swap the arguments in the execution template above based on the tables below.
@@ -134,6 +143,8 @@ To evaluate the other models across other datasets, simply swap the arguments in
 | :--- | :--- | :--- |
 | **TUEV** | `run_class_finetuning_tuab_and_tuev.py` | `TUEV` |
 | **BCICIV_2b** | `run_class_finetuning_2b.py` | `BCIIV2b` |
+---
+<br>
 
 🔄 Testing Other Foundation Models
 
@@ -163,8 +174,30 @@ torchrun --nnodes=1 --nproc_per_node=4 --master_port=29505 NeuroLM/train_instruc
   > training_tuab.log 2>&1 & disown
 ```
 
+**Note:** Please replace the file paths with your actual local paths. You can download the pretrained model (e.g., `NeuroLM-B.pt`) from the repositories linked in the [Evaluated four SOTA Foundation Models](#fm-section) section at the beginning of this README.
 
 
+---
+<br>
 
+# ⚙️ Paradigm-Level Ablation Studies
 
+### 1. Pretraining-Source Ablation
+
+For example, to conduct this ablation for NeuroGPT on the TUAB dataset:
+
+```
+CUDA_VISIBLE_DEVICES=0 nohup 
+
+python -u train_tuab.py \
+  --training-style generative \
+  --pretrained-model none \
+  --num_train_epochs 100 \
+  --training-steps 20000 \
+  --per-device-training-batch-size 16 \
+  --per-device-validation-batch-size 16 \
+  --log-dir ./log/tuab_pretraining \
+  --run-name neurogpt_pretrain_tuab \
+  > tuab_pretrain.log 2>&1 &
+```
 
