@@ -205,6 +205,79 @@ After pretraining the model exclusively on the target dataset, move the resultin
 
 ---
 
+### 2. LLM-Rep Ablation
+
+For example, to conduct this ablation for NeuroGPT when the TUAB dataset is evaluated:
+
+```bash
+CUDA_VISIBLE_DEVICES=2,5 nohup torchrun --nproc_per_node=2 --master_port=29533 train_tuab1.py \
+  --pretrained-model none \
+  --ft-only-encoder True \
+  --training-style decoding \
+  --run-name "NeuroGPT_Strict_LLMRep_Ablation" \
+  --log-dir "results_tuab_llmrep_ablation/" \
+  --per-device-training-batch-size 32 \
+  --per-device-validation-batch-size 32 > llmrep_tuab.log 2>&1 &
+```
+
+This same methodology can be adapted for other datasets and models.
+
+<br>
+
+---
+
+### 3. No-GPT Ablation
+
+For example, to conduct this ablation for NeuroGPT when the TUAB dataset is evaluated:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 nohup python -u pretrain_no_gpt.py > pretrain_ablation.log 2>&1 &
+```
+ <br>
+
+ After pretraining the model exclusively on the target dataset, move the resulting model weights to a designated directory (e.g., pretrained_model/). You can then fine-tune and evaluate the model on the target dataset using the commands as below. This same methodology can be adapted for other datasets and models.
 
 
+```bash
+CUDA_VISIBLE_DEVICES=0 nohup python -u train_gpt_THU.py \
+  --training-style decoding \
+  --pretrained-model results/pretraining/NeuroGPT_Ablation_NoGPT_3L/model_no_gpt_3l \
+  --architecture GPT \
+  --num-hidden-layers 3 \
+  --log-dir results/models/downstream/tuab_finetune \
+  --run-name tuab_finetune_eval \
+  --per-device-training-batch-size 16 \
+  --per-device-validation-batch-size 16 \
+  --training-steps 60000 \
+  > finetune_eval.log 2>&1 &
+```
+---
 
+### 🧪 Neurophysiological Probing (NPP) Framework
+
+The NPP framework evaluates the sensitivity and robustness of foundation models against specific neurophysiological transformations across three perturbation categories:
+* **`FR_*.py`**: Fourier Phase Randomization
+* **`SP_*.py`**: Spatial-Preserving Phase Randomization
+* **`SA_*.py`**: Spectral Frequency Band Ablation
+
+Scripts are named using the pattern **`<TEST>_<DATASET>_<MODEL>.py`**:
+* **Datasets:** `2b` (BCIC IV 2b), `tuab` (TUAB), `tuev` (TUEV)
+* **Models:** `EEGPT`, `LaBraM`, `NeuroGPT`, `NeuroLM`
+
+---
+
+#### Execution Example
+
+To execute any probing experiment, run the corresponding standalone script directly using Python. Before running, ensure that your dataset paths and model checkpoint locations are correctly specified inside the script's `run_full_analysis()` setup.
+
+##### 1. Phase Randomization (e.g., LaBraM on TUAB)
+
+```bash
+CUDA_VISIBLE_DEVICES=0 nohup python -u core_experiments/npp_framework/phase_randomization/FR_tuab_LaBraM.py \
+  > logs/FR_tuab_LaBraM.log 2>&1 &
+```
+
+---
+
+> ⚠️ **IMPORTANT NOTE ON FILE PATHS:**  
+> For simplicity and reproducibility, the dataset and model checkpoint directories are hardcoded at the beginning of the evaluation and training scripts (e.g., `DATA_PATH = "/homes/..."`). Before running any scripts, please open the respective file and replace these hardcoded paths with the absolute paths to your local dataset and checkpoint directories.
