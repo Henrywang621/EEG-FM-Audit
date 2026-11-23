@@ -143,6 +143,7 @@ To evaluate the other models across other datasets, simply swap the arguments in
 | :--- | :--- | :--- |
 | **TUEV** | `run_class_finetuning_tuab_and_tuev.py` | `TUEV` |
 | **BCICIV_2b** | `run_class_finetuning_2b.py` | `BCIIV2b` |
+| **SEED_IV** | `run_class_finetuning_seedIV.py` | `SEED_IV` |
 ---
 
 <br>
@@ -174,6 +175,13 @@ torchrun --nnodes=1 --nproc_per_node=4 --master_port=29505 NeuroLM/train_instruc
   --gradient_accumulation_steps 1 \
   > training_tuab.log 2>&1 & disown
 ```
+
+Below is an example of using a shell (`.sh`) script to run the multi-GPU hyperparameter grid search for **NeuroGPT** on the **TUAB** dataset, as described in the manuscript:
+
+```bash
+nohup bash run_grid_search_tuab.sh > grid_search_tuab.log 2>&1 & disown
+```
+
 
 **Note:** Please replace the file paths with your actual local paths. You can download the pretrained model (e.g., `NeuroLM-B.pt`) from the repositories linked in the [Evaluated four SOTA Foundation Models](#fm-section) section at the beginning of this README.
 

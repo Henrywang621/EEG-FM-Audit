@@ -33,7 +33,7 @@ def compute_metrics(eval_pred):
     predictions = np.argmax(logits, axis=-1)
     return {
         "balanced_accuracy": balanced_accuracy_score(labels, predictions),
-        "f1": f1_score(labels, predictions, average='weighted'),
+        "f1": f1_score(labels, predictions, average='macro'),
         "kappa": cohen_kappa_score(labels, predictions)
     }
 
@@ -104,10 +104,10 @@ def run_single_seed_training(config, seed):
     
     original_log_dir = config["log_dir"]
     seed_log_dir = os.path.join(original_log_dir, f"seed_{seed}")
-    config["log_dir"] = seed_log_dir
+    # config["log_dir"] = seed_log_dir
     os.makedirs(seed_log_dir, exist_ok=True)
 
-    files_path = "/homes/xw2336/data_portal/TUAB"
+    files_path = "/homes/yy2541/henry/TUAB/processed"
     train_path = os.path.join(files_path, 'train/')
     val_path = os.path.join(files_path, 'val/')
     test_path = os.path.join(files_path, 'test/')
@@ -148,6 +148,7 @@ def run_single_seed_training(config, seed):
         num_train_epochs=config["num_train_epochs"], 
         eval_strategy='epoch',
         save_strategy="epoch",
+        save_total_limit=1,
         metric_for_best_model="balanced_accuracy",
         load_best_model_at_end=True,
         compute_metrics=compute_metrics,
