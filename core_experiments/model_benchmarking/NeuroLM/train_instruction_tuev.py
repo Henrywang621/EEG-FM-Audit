@@ -44,7 +44,7 @@ def get_loaders(args, seed):
     
     info = {
         'name': 'TUEV', 'is_binary': False, 'num_classes': 6, 'result_idx': 34,
-        'metrics': ["accuracy", "balanced_accuracy", "cohen_kappa", "f1_weighted"],
+        'metrics': ["accuracy", "balanced_accuracy", "cohen_kappa", "f1_macro"],
         'label_dic': {'(A)': 0, '(B)': 1, '(C)': 2, '(D)': 3, '(E)': 4, '(F)': 5},
         'dataset_val': dataset_val, 'dataset_test': dataset_test
     }
@@ -164,7 +164,7 @@ def main(args):
     # 6. Final Aggregate Reporting
     if master_process:
         print("\n" + "="*50 + "\nFINAL AGGREGATED TEST RESULTS (Mean ± Std)\n" + "="*50)
-        for m in ['balanced_accuracy', 'f1_weighted', 'cohen_kappa']:
+        for m in ['balanced_accuracy', 'f1_macro', 'cohen_kappa']:
             vals = [r[m] for r in all_seed_results]
             print(f"{m:<20}: {np.mean(vals):.4f} ± {np.std(vals):.4f}")
 

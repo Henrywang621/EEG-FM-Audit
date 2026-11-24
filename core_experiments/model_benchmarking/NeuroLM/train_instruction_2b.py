@@ -10,6 +10,7 @@ import argparse
 from contextlib import nullcontext
 import gc
 import json
+import re
 
 import numpy as np
 import torch
@@ -43,23 +44,26 @@ def init(args):
         return
 
     backend = 'nccl'
-    device = 'cuda'
     dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' 
     
     ddp = int(os.environ.get('RANK', -1)) != -1 
     if ddp:
-        init_process_group(backend=backend)
         ddp_rank = int(os.environ['RANK'])
         ddp_local_rank = int(os.environ['LOCAL_RANK'])
         ddp_world_size = int(os.environ['WORLD_SIZE'])
         device = f'cuda:{ddp_local_rank}'
-        torch.cuda.set_device(device)
+        
+        # CRITICAL FIX: Set the CUDA device BEFORE initializing the process group for NCCL
+        torch.cuda.set_device(ddp_local_rank)
+        init_process_group(backend=backend)
+        
         master_process = ddp_rank == 0 
         seed_offset = ddp_rank 
     else:
         master_process = True
         seed_offset = 0
         ddp_world_size = 1
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     torch.manual_seed(args.seed + seed_offset)
     torch.backends.cuda.matmul.allow_tf32 = True 
@@ -147,20 +151,6 @@ def main(args):
     if master_process:
         os.makedirs(checkpoint_out_dir, exist_ok=True)
 
-    def get_batch(split):
-        if split == 'train':
-            data = np.memmap(os.path.join('/homes/xw2336/xw2336/NeuroLM/text', 'train.bin'), dtype=np.uint16, mode='r')
-        else:
-            data = np.memmap(os.path.join('/homes/xw2336/xw2336/NeuroLM/text', 'val.bin'), dtype=np.uint16, mode='r')
-        ix = torch.randint(len(data) - args.block_size, (args.text_batch_size,))
-        x = torch.stack([torch.from_numpy((data[i:i + args.block_size]).astype(np.int64)) for i in ix])
-        y = torch.stack([torch.from_numpy((data[i + 1:i + 1 + args.block_size]).astype(np.int64)) for i in ix])
-        if device_type == 'cuda':
-            x, y = x.pin_memory().to(device, non_blocking=True), y.pin_memory().to(device, non_blocking=True)
-        else:
-            x, y = x.to(device), y.to(device)
-        return x, y
-
     concat_datasets = True
     all_datasets = [get_instruct_datasets(args, args.dataset, eeg_max_len=276, text_max_len=80)]
     
@@ -183,13 +173,16 @@ def main(args):
     iter_num = 0
     init_from = 'resume' if os.path.exists(os.path.join(checkpoint_out_dir, 'ckpt.pt')) else 'pretrained'
     
-    model_args = dict(n_layer=12, n_head=12, n_embd=768, block_size=args.block_size, bias=False, vocab_size=50257, dropout=0.0) 
+    model_args = dict(n_layer=12, n_head=12, n_embd=768, block_size=args.block_size, bias=False, vocab_size=50257, dropout=args.dropout) 
                     
     if init_from == 'resume':
         ckpt_path = os.path.join(checkpoint_out_dir, 'ckpt.pt')
-        checkpoint = torch.load(ckpt_path, map_location=device, weights_only=False)
+        checkpoint = torch.load(ckpt_path, map_location='cpu', weights_only=False)
         for k in ['n_layer', 'n_head', 'n_embd', 'block_size', 'bias', 'vocab_size']:
             model_args[k] = checkpoint['model_args'][k]
+            
+        model_args['bias'] = True
+            
         model = NeuroLM(GPTConfig(**model_args), init_from='gpt2')
         state_dict = checkpoint['model']
         unwanted_prefix = '_orig_mod.'
@@ -201,19 +194,25 @@ def main(args):
         start_epoch = checkpoint['epoch'] + 1
     else:
         ckpt_path = os.path.join(args.out_dir, args.NeuroLM_path)
-        checkpoint = torch.load(ckpt_path, map_location=device, weights_only=False)
+        checkpoint = torch.load(ckpt_path, map_location='cpu', weights_only=False)
         for k in ['n_layer', 'n_head', 'n_embd', 'block_size', 'bias', 'vocab_size']:
             model_args[k] = checkpoint['model_args'][k]
+            
+        model_args['bias'] = True 
+        
         model = NeuroLM(GPTConfig(**model_args), init_from='scratch')
         state_dict = checkpoint['model']
         unwanted_prefix = '_orig_mod.'
         for k,v in list(state_dict.items()):
             if k.startswith(unwanted_prefix):
                 state_dict[k[len(unwanted_prefix):]] = state_dict.pop(k)
-        model.load_state_dict(state_dict)
+                
+        model.load_state_dict(state_dict, strict=False)
         start_epoch = 0
 
     model.to(device)
+    torch.cuda.empty_cache()
+    
     scaler = torch.amp.GradScaler(device_type, enabled=(dtype == 'float16'))
     optimizer = model.configure_optimizers(args.weight_decay, args.learning_rate, (args.beta1, args.beta2), device_type)
     
@@ -239,8 +238,9 @@ def main(args):
     decode = lambda l: enc.decode(l)
     
     datasets = [{'data_loader_train': data_loader_merge}] if concat_datasets else all_datasets
-    X_text2, Y_text2 = get_batch('train') 
     raw_model = model.module if ddp else model 
+    vocab_size = raw_model.GPT2.config.vocab_size
+    
     final_test_stats = None
 
     for epoch in range(start_epoch, args.epochs):
@@ -258,15 +258,18 @@ def main(args):
                 input_chans, input_time, gpt_mask = input_chans.to(device), input_time.to(device), gpt_mask.to(device)
                 if input_mask is not None: input_mask = input_mask.to(device)
 
-                Y_eeg = torch.full((X_eeg.size(0), X_eeg.size(1)), fill_value=-1-raw_model.GPT2.config.vocab_size).to(device)
+                # Initialize dummy EEG targets correctly[cite: 7]
+                Y_eeg = torch.full((X_eeg.size(0), X_eeg.size(1)), fill_value=-1, dtype=torch.long).to(device)
+                
+                # Sanitize loaded batch: Targets to -1, Inputs to bounds[cite: 7]
+                Y_text[(Y_text < 0) | (Y_text >= vocab_size)] = -1
+                X_text[(X_text < 0) | (X_text >= vocab_size)] = 0
 
                 if ddp: model.require_backward_grad_sync = (step + 1) % args.gradient_accumulation_steps == 0
 
                 with ctx:
                     loss1, log1, _ = model(X_eeg, Y_eeg, X_text, Y_text, input_chans, input_time, input_mask, eeg_text_mask=gpt_mask)
-                    loss2, log2, _ = model(None, None, X_text2, Y_text2)
-                    loss = (loss1 + loss2) / args.gradient_accumulation_steps 
-                    # loss = loss1 / args.gradient_accumulation_steps
+                    loss = loss1 / args.gradient_accumulation_steps 
 
                 scaler.scale(loss).backward()
 
@@ -278,10 +281,8 @@ def main(args):
                     scaler.update()
                     optimizer.zero_grad(set_to_none=True)
                 
-                X_text2, Y_text2 = get_batch('train')
                 if (iter_num + 1) % args.log_interval == 0 and master_process:
-                    print(f"Fold {args.test_subject} | Epoch {epoch} step [{step + 1}/{num_training_steps_per_epoch}]: train total loss {log1['train/loss'] + log2['train/loss']:.4f}")
-                    # print(f"Fold {args.test_subject} | Epoch {epoch} step [{step + 1}/{num_training_steps_per_epoch}]: train total loss {log1['train/loss']:.4f}")
+                    print(f"Fold {args.test_subject} | Epoch {epoch} step [{step + 1}/{num_training_steps_per_epoch}]: train total loss {log1['train/loss']:.4f}")
                 iter_num += 1
         
         if not args.eval_only:
@@ -306,11 +307,19 @@ def main(args):
     if args.wandb_log and master_process: wandb.finish()
     return final_test_stats
 
+# Rewritten get_pred for precise parsing using RegEx
 def get_pred(pred_string, dataset_info):
     if dataset_info['name'] == 'BCICIV2b':
         s = pred_string.lower()
-        if 'yes' in s: return 1 
-        if 'no' in s: return 0  
+        if 'answer:' in s:
+            s = s.split('answer:')[-1] 
+            
+        matches = re.findall(r'\b(yes|no)\b', s)
+        
+        if matches:
+            first_match = matches[0]
+            return 1 if first_match == 'yes' else 0
+            
         return -1 
     return -1
 
@@ -325,14 +334,13 @@ def evaluate(model, dataset_info, dataloader, decode):
         if input_mask is not None: input_mask = input_mask.to(device)
 
         with ctx:
-            # FIX: Put all the required variables back in, removing the '...'
-            text = model.generate(X_eeg, X_text, input_chans, input_time, input_mask, eeg_text_mask=gpt_mask, max_new_tokens=5)
+            text = model.generate(X_eeg, X_text, input_chans, input_time, input_mask, eeg_text_mask=gpt_mask, max_new_tokens=2)
             
             for i, t in enumerate(text[:, 1:]):
                 decoded_str = decode(t.tolist())
                 
-                # IMPORTANT DEBUG PRINT: See exactly what the model is saying
-                if master_process and len(preds) < 10: # Just print the first 10 to not spam your console
+                # IMPORTANT DEBUG PRINT: See exactly what the model is saying[cite: 5]
+                if master_process and len(preds) < 10: 
                     print(f"DEBUG | Target Label: {label[i].item()} | Model Output: '{decoded_str}'")
                 
                 pred = get_pred(decoded_str, dataset_info)
@@ -372,6 +380,7 @@ def get_args():
     parser.add_argument('--grad_clip', type=float, default=1.0)
     parser.add_argument('--decay_lr', default=True, action='store_false')
     parser.add_argument('--seed', default=1337, type=int)
+    parser.add_argument('--dropout', default=0.0, type=float)
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -391,7 +400,6 @@ if __name__ == '__main__':
             if fold_metrics and is_main:
                 print(f"\n✅ RESULTS FOR TEST SUBJECT {test_sub}:")
                 for key, val in fold_metrics.items():
-                    # TYPE-SAFE PRINTING: Only use :.4f for numbers
                     if isinstance(val, (int, float, np.float32, np.float64)):
                         print(f"   {key.replace('_', ' ').title()}: {val:.4f}")
                     else:

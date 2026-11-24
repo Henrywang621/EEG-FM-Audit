@@ -39,7 +39,7 @@ def init_ddp():
 def get_loaders(args, seed):
     # EXTRACTED FROM TUAB SCRIPT: Path and parameter configuration
     dataset_train, dataset_test, dataset_val = prepare_TUAB_dataset(
-        Path(args.dataset_dir, 'data_portal/TUAB/processed'), 
+        Path(args.dataset_dir, 'TUAB/processed'), 
         is_instruct=True, eeg_max_len=276, text_max_len=80
     )
     
@@ -176,10 +176,12 @@ def main(args):
     # 6. Final Aggregate Reporting
     if master_process:
         print("\n" + "="*50 + "\nFINAL TUAB AGGREGATED TEST RESULTS (Mean ± Std)\n" + "="*50)
-        for m in ['balanced_accuracy', 'f1_weighted', 'cohen_kappa']:
+        for m in ['balanced_accuracy', 'f1', 'roc_auc', 'accuracy']:
             if m in all_seed_results[0]:
                 vals = [r[m] for r in all_seed_results]
                 print(f"{m:<20}: {np.mean(vals):.4f} ± {np.std(vals):.4f}")
+
+    destroy_process_group()
 
 def get_args():
     parser = argparse.ArgumentParser()
